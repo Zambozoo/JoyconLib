@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class JoyconController : MonoBehaviour {
 	
+    public JoyconManager.JoyconType joyconType;
     public float[] stick;
     public Vector3 gyro = Vector3.zero;
     public float gyroMagnitude;
@@ -12,7 +13,6 @@ public class JoyconController : MonoBehaviour {
     public Quaternion orientation;
     public Vector3 rotation;
     public Joycon joycon;
-    public JoyconManager.JoyconType joyconType;
     Vector3 rotationOffset = new Vector3(0, 180, 0);
 
     JoyconManager joyconManager;
