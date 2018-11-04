@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
@@ -6,6 +6,7 @@ using UnityEngine;
 using System;
 public class JoyconManager: MonoBehaviour
 {
+    public enum JoyconType { left, right };
 
     // Settings accessible via Unity
     public bool EnableIMU = true;
@@ -19,10 +20,21 @@ public class JoyconManager: MonoBehaviour
 
     public List<Joycon> j; // Array of all connected Joy-Cons
     static JoyconManager instance;
+    Joycon leftJoycon, rightJoycon;
 
     public static JoyconManager Instance
     {
         get { return instance; }
+    }
+
+    public Joycon GetJoycon(JoyconType type){
+        if (type == JoyconType.right && rightJoycon != null)
+            return rightJoycon;
+        
+        if (type == JoyconType.left && leftJoycon != null)
+            return leftJoycon;
+
+        return null;  
     }
 
     void Awake()
@@ -51,7 +63,7 @@ public class JoyconManager: MonoBehaviour
 		while (ptr != IntPtr.Zero) {
 			enumerate = (hid_device_info)Marshal.PtrToStructure (ptr, typeof(hid_device_info));
 
-			Debug.Log (enumerate.product_id);
+			//Debug.Log (enumerate.product_id);
 				if (enumerate.product_id == product_l || enumerate.product_id == product_r) {
 					if (enumerate.product_id == product_l) {
 						isLeft = true;
@@ -64,7 +76,14 @@ public class JoyconManager: MonoBehaviour
 					}
 					IntPtr handle = HIDapi.hid_open_path (enumerate.path);
 					HIDapi.hid_set_nonblocking (handle, 1);
-					j.Add (new Joycon (handle, EnableIMU, EnableLocalize & EnableIMU, 0.04f, isLeft));
+                Joycon joycon = new Joycon(handle, EnableIMU, EnableLocalize & EnableIMU, 0.05f, isLeft);
+                j.Add (joycon);
+
+                if (isLeft)
+                    leftJoycon = joycon;
+                else
+                    rightJoycon = joycon;
+                
 					++i;
 				}
 				ptr = enumerate.next;
@@ -76,7 +95,7 @@ public class JoyconManager: MonoBehaviour
     {
 		for (int i = 0; i < j.Count; ++i)
 		{
-			Debug.Log (i);
+			//Debug.Log (i);
 			Joycon jc = j [i];
 			byte LEDs = 0x0;
 			LEDs |= (byte)(0x1 << i);
@@ -89,8 +108,7 @@ public class JoyconManager: MonoBehaviour
     {
 		for (int i = 0; i < j.Count; ++i)
 		{
-			Joycon jc = j [i];
-			jc.Update ();
+			j[i].Update();
 		}
     }
 
@@ -98,8 +116,7 @@ public class JoyconManager: MonoBehaviour
     {
 		for (int i = 0; i < j.Count; ++i)
 		{
-			Joycon jc = j [i];
-			jc.Detach ();
+			j[i].Detach ();
 		}
     }
 }
