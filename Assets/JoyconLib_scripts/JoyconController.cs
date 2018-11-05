@@ -40,15 +40,6 @@ public class JoyconController : MonoBehaviour {
 				joycon.Recenter ();
 			}
 
-            if (joycon.GetButtonDown(Joycon.Button.DPAD_UP)){
-                VRControllerInputModule.instance.SetClick(true);  
-            }
-
-            if (joycon.GetButtonUp(Joycon.Button.DPAD_UP))
-            {
-                VRControllerInputModule.instance.SetClick(false);
-            }
-
             stick = joycon.GetStick();
 
             // Gyro values: x, y, z axis values (in radians per second)
